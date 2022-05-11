@@ -1,5 +1,3 @@
-
-
 ASSUMPTION:
 	1. Laser detector, Thermal camera, CCTV camera installed at the main gate of the house
 	2. By default, Thermal and CCTV Camera are always in ON state but can be turned off by the owner for different reasons
