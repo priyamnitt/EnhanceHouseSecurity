@@ -1,8 +1,10 @@
+
+
 ASSUMPTION:
-Laser detector, Thermal camera, CCTV camera installed at the main gate of the house
-By default, Thermal and CCTV Camera are always in ON state but can be turned off by the owner for different reasons
-Surveillance cameras are installed in the house camera area
-SOS Alarm system installed in each family members phone
+	1. Laser detector, Thermal camera, CCTV camera installed at the main gate of the house
+	2. By default, Thermal and CCTV Camera are always in ON state but can be turned off by the owner for different reasons
+	3. Surveillance cameras are installed in the house camera area
+	4. SOS Alarm system installed in each family members phone
 
 SEND-NOTIFICATION-TO-FAMILY-MEMBERS
 	FOR member in owners
@@ -34,41 +36,50 @@ FOR each day
 		ACTIVATE laser detector
 		SET is_laser_detector_enabled = TRUE
 	ELSE
-		SET is_laser_detector_enabled = FALSE
+		IF is_laser_detector_enabled == TRUE
+			DEACTIVATE laser detector
+			SET is_laser_detector_enabled = FALSE
 	
 	FOR each detected person trying to enter from main gate
 
 		IF is_cctv_camera_activated == TRUE
 			DETECT face of the person from CCTV camera
 
-
 			IF person in whitelisted_visitors and is_laser_detector_enabled == FALSE
-				OPEN the gate
+				OPEN the main gate
 		ELSE
 			SEND-NOTIFICATION-TO-FAMILY-MEMBERS
 			WAIT for permission to open the gate from any one family member
 		
 		IF is_thermal_camera_activated == TRUE and entering person detected with metal
 			SEND-NOTIFICATION-TO-FAMILY-MEMBERS
+			
+			WAIT for permission to open the gate from any one family member
 
-IF person forcefully trying to enter main gate or detected around the house inside main gate
-	SEND-NOTIFICATION-TO-FAMILY-MEMBERS
+		IF person forcefully trying to enter main gate or detected around the house inside main gate
+			SEND-NOTIFICATION-TO-FAMILY-MEMBERS
 	
-	IF is_cctv_camera_activated == TRUE and person not in whitelisted_visitors
-		SEND GPS Location and captured details to Police Station
-	ELSE IF person trying to forcefully enter the house door after breaking main gate
-		SEND GPS Location and captured details to Police Station
-	ELSE
-		ASK for permission from owners
-			IF permission_granted == TRUE
+			IF is_cctv_camera_activated == TRUE and person not in whitelisted_visitors
 				SEND GPS Location and captured details to Police Station
+			ELSE IF person trying to forcefully enter the house door after breaking main gate
+				SEND GPS Location and captured details to Police Station
+			ELSE
+				ASK for permission from owners for raising police complaint
+				
+				IF permission_granted == TRUE
+					SEND GPS Location and captured details to Police Station
+				ELSE
+					OPEN the main gate and allow the entrance
 
 	END-FOR
 
-IF SOS is pressed by the user
-		SEND recorded help message to police station and gps location
+	FOR throughout the day
+		IF SOS is pressed by the user
+			SEND recorded help message to police station and gps location
 
-	IF DETECT-HARMFUL-WEAPONS-IN-HAND
-		SEND captured images and gps location and recorded message if any to police station
+		IF DETECT-HARMFUL-WEAPONS-IN-HAND
+			SEND captured images and gps location and recorded message if any to police station
+	END-FOR
 
 END-FOR
+END
